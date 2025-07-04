@@ -1,12 +1,13 @@
-import React, { useState } from "react";
-import { saveTodo } from "../services/TodoServices";
-import { useNavigate } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { getTodo, saveTodo, todoUpdate } from "../services/TodoServices";
+import { useNavigate, useParams } from "react-router-dom";
 
 const TodoComponent = () => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [completed, setCompleted] = useState("");
   const navigate = useNavigate();
+  const { id } = useParams();
 
   function saveOrUpdateTodo(e) {
     e.preventDefault();
@@ -14,21 +15,54 @@ const TodoComponent = () => {
     const todo = { title, description, completed };
     // console.log(todo);
 
-    saveTodo(todo)
-      .then((response) => {
-        console.log(response.data);
-        navigate("/todos");
-      })
-      .catch((error) => {
-        console.log(error);
-      });
+    if (id) {
+      todoUpdate(id, todo)
+        .then((response) => {
+          navigate("/todos");
+        })
+        .catch((error) => {
+          console.error(error);
+        });
+    } else {
+      saveTodo(todo)
+        .then((response) => {
+          console.log(response.data);
+          navigate("/todos");
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    }
   }
+
+  function pageTitle() {
+    if (id) {
+      return <h2 className="text-center">Update Todo</h2>;
+    } else {
+      return <h2 className="text-center">Add Todo</h2>;
+    }
+  }
+
+  useEffect(() => {
+    if (id) {
+      getTodo(id)
+        .then((response) => {
+          console.log(response.data);
+          setTitle(response.data.title);
+          setDescription(response.data.description);
+          setCompleted(response.data.completed);
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    }
+  }, [id]);
 
   return (
     <div className="container mt-5">
       <div className="row">
         <div className="card col-md-6 offset-md-3 offset-md-3">
-          <h2 className="text-center">Add Todo</h2>
+          {pageTitle()}
           <div className="card-body">
             <form>
               <div className="form-group mb-2">
