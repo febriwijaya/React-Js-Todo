@@ -1,22 +1,33 @@
 import React, { useState } from "react";
-import { registerAPICall } from "../services/AuthService";
+import {
+  loginAPICall,
+  saveLoggedInUser,
+  storeToken,
+} from "../services/AuthService";
+import { useNavigate } from "react-router-dom";
 
-const RegisterComponent = () => {
-  const [name, setName] = useState("");
+const LoginComponent = () => {
   const [username, setUsername] = useState("");
-  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  function handleRegistrationForm(e) {
+  const navigator = useNavigate();
+
+  async function handleLoginForm(e) {
     e.preventDefault();
 
-    const register = { name, username, email, password };
-
-    // console.log(register);
-
-    registerAPICall(register)
+    await loginAPICall(username, password)
       .then((response) => {
         console.log(response.data);
+
+        const token = "Basic " + window.btoa(username + ":" + password);
+
+        storeToken(token);
+
+        saveLoggedInUser(username);
+
+        navigator("/todos");
+
+        window.location.reload(false);
       })
       .catch((error) => {
         console.error(error);
@@ -30,27 +41,15 @@ const RegisterComponent = () => {
         <div className="col-md-6 offset-md-3">
           <div className="card">
             <div className="card-header">
-              <h2 className="text-center">User Registration Form</h2>
+              <h2 className="text-center">Login Form</h2>
             </div>
 
             <div className="card-body">
               <form>
                 <div className="row mb-3">
-                  <label className="col-md-3 control-label">Name</label>
-                  <div className="col-md-9">
-                    <input
-                      type="text"
-                      name="name"
-                      className="form-control"
-                      placeholder="Enter Name"
-                      value={name}
-                      onChange={(e) => setName(e.target.value)}
-                    ></input>
-                  </div>
-                </div>
-
-                <div className="row mb-3">
-                  <label className="col-md-3 control-label">Username</label>
+                  <label className="col-md-3 control-label">
+                    Username or Email
+                  </label>
                   <div className="col-md-9">
                     <input
                       type="text"
@@ -59,20 +58,6 @@ const RegisterComponent = () => {
                       placeholder="Enter User Name"
                       value={username}
                       onChange={(e) => setUsername(e.target.value)}
-                    ></input>
-                  </div>
-                </div>
-
-                <div className="row mb-3">
-                  <label className="col-md-3 control-label">Email</label>
-                  <div className="col-md-9">
-                    <input
-                      type="text"
-                      name="email"
-                      className="form-control"
-                      placeholder="Enter Email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
                     ></input>
                   </div>
                 </div>
@@ -94,7 +79,7 @@ const RegisterComponent = () => {
                 <div className="form-group mb-3">
                   <button
                     className="btn btn-primary"
-                    onClick={(e) => handleRegistrationForm(e)}
+                    onClick={(e) => handleLoginForm(e)}
                   >
                     Submit
                   </button>
@@ -108,4 +93,4 @@ const RegisterComponent = () => {
   );
 };
 
-export default RegisterComponent;
+export default LoginComponent;
