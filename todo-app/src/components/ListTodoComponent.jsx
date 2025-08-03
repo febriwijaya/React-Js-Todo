@@ -6,11 +6,14 @@ import {
   inCompleteTodo,
 } from "../services/TodoServices";
 import { useNavigate } from "react-router-dom";
+import { isAdminUser } from "../services/AuthService";
 
 const ListTodoComponent = () => {
   const [todos, setTodos] = useState([]);
 
   const navigate = useNavigate();
+
+  const isAdmin = isAdminUser();
 
   useEffect(() => {
     listTodos();
@@ -68,9 +71,12 @@ const ListTodoComponent = () => {
   return (
     <div className="container">
       <h2 className="text-center">List of Todos</h2>
-      <button className="btn btn-primary mb-2" onClick={addNewTodo}>
-        Add Todo
-      </button>
+      {isAdmin && (
+        <button className="btn btn-primary mb-2" onClick={addNewTodo}>
+          Add Todo
+        </button>
+      )}
+
       <div>
         <table className="table table-bordered table-striped">
           <thead>
@@ -88,18 +94,23 @@ const ListTodoComponent = () => {
                 <td>{todo.description}</td>
                 <td>{todo.completed ? "YES" : "NO"}</td>
                 <td>
-                  <button
-                    className="btn btn-info mx-2"
-                    onClick={() => updateTodo(todo.id)}
-                  >
-                    Update
-                  </button>
-                  <button
-                    className="btn btn-danger mx-2"
-                    onClick={() => deleteTodoId(todo.id)}
-                  >
-                    Delete
-                  </button>
+                  {isAdmin && (
+                    <button
+                      className="btn btn-info mx-2"
+                      onClick={() => updateTodo(todo.id)}
+                    >
+                      Update
+                    </button>
+                  )}
+                  {isAdmin && (
+                    <button
+                      className="btn btn-danger mx-2"
+                      onClick={() => deleteTodoId(todo.id)}
+                    >
+                      Delete
+                    </button>
+                  )}
+
                   <button
                     className="btn btn-success mx-2"
                     onClick={() => completeTodoById(todo.id)}
