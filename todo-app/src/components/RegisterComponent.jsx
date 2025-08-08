@@ -1,11 +1,15 @@
 import React, { useState } from "react";
 import { registerAPICall } from "../services/AuthService";
+import Swal from "sweetalert2";
+import { useNavigate } from "react-router-dom";
 
 const RegisterComponent = () => {
   const [name, setName] = useState("");
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+
+  const navigate = useNavigate();
 
   function handleRegistrationForm(e) {
     e.preventDefault();
@@ -17,9 +21,24 @@ const RegisterComponent = () => {
     registerAPICall(register)
       .then((response) => {
         console.log(response.data);
+        Swal.fire({
+          title: "Register Berhasil!",
+          text: "Silahkan login untuk melanjutkan.",
+          icon: "success",
+          confirmButtonText: "OK",
+        }).then(() => {
+          navigate("/login"); // arahkan ke halaman login
+        });
       })
       .catch((error) => {
         console.error(error);
+        Swal.fire({
+          title: "Register Gagal!",
+          text:
+            error.response?.data?.message || "Terjadi kesalahan saat register.",
+          icon: "error",
+          confirmButtonText: "Coba Lagi",
+        });
       });
   }
 

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { getTodo, saveTodo, todoUpdate } from "../services/TodoServices";
 import { useNavigate, useParams } from "react-router-dom";
+import Swal from "sweetalert2";
 
 const TodoComponent = () => {
   const [title, setTitle] = useState("");
@@ -13,24 +14,32 @@ const TodoComponent = () => {
     e.preventDefault();
 
     const todo = { title, description, completed };
-    // console.log(todo);
 
     if (id) {
       todoUpdate(id, todo)
-        .then((response) => {
+        .then(() => {
+          Swal.fire("Berhasil!", "Todo berhasil diedit.", "success");
           navigate("/todos");
         })
         .catch((error) => {
           console.error(error);
+          const errorMessage =
+            error.response?.data?.message ||
+            "Terjadi kesalahan saat edit data.";
+          Swal.fire("Gagal!", errorMessage, "error");
         });
     } else {
       saveTodo(todo)
-        .then((response) => {
-          console.log(response.data);
+        .then(() => {
+          Swal.fire("Berhasil!", "Todo berhasil ditambahkan.", "success");
           navigate("/todos");
         })
         .catch((error) => {
-          console.log(error);
+          console.error(error);
+          const errorMessage =
+            error.response?.data?.message ||
+            "Terjadi kesalahan saat menambahkan data.";
+          Swal.fire("Gagal!", errorMessage, "error");
         });
     }
   }

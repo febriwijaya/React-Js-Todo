@@ -7,6 +7,7 @@ import {
 } from "../services/TodoServices";
 import { useNavigate } from "react-router-dom";
 import { isAdminUser } from "../services/AuthService";
+import Swal from "sweetalert2";
 
 const ListTodoComponent = () => {
   const [todos, setTodos] = useState([]);
@@ -39,13 +40,28 @@ const ListTodoComponent = () => {
   }
 
   function deleteTodoId(id) {
-    deleteTodo(id)
-      .then((response) => {
-        listTodos();
-      })
-      .catch((error) => {
-        console.error(error);
-      });
+    Swal.fire({
+      title: "Apakah Anda yakin ingin menghapus?",
+      text: "Data yang dihapus tidak dapat dikembalikan!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Ya, hapus!",
+      cancelButtonText: "Batal",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        deleteTodo(id)
+          .then(() => {
+            Swal.fire("Berhasil!", "Todo berhasil dihapus.", "success");
+            listTodos();
+          })
+          .catch((error) => {
+            console.error(error);
+            Swal.fire("Gagal!", "Terjadi kesalahan saat menghapus.", "error");
+          });
+      }
+    });
   }
 
   function completeTodoById(id) {

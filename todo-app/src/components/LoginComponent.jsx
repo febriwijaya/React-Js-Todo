@@ -5,6 +5,7 @@ import {
   storeToken,
 } from "../services/AuthService";
 import { useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
 
 const LoginComponent = () => {
   const [username, setUsername] = useState("");
@@ -34,6 +35,13 @@ const LoginComponent = () => {
       })
       .catch((error) => {
         console.error(error);
+        Swal.fire({
+          title: "Login Gagal!",
+          text:
+            error.response?.data?.message || "Terjadi kesalahan saat login.",
+          icon: "error",
+          confirmButtonText: "Coba Lagi",
+        });
       });
   }
 
