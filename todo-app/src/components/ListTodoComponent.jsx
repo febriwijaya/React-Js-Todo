@@ -100,6 +100,7 @@ const ListTodoComponent = () => {
               <th>Todo Title</th>
               <th>Todo Description</th>
               <th>Todo Completed</th>
+              {isAdmin && <th>Created By</th>}
               <th>Actions</th>
             </tr>
           </thead>
@@ -109,23 +110,21 @@ const ListTodoComponent = () => {
                 <td>{todo.title}</td>
                 <td>{todo.description}</td>
                 <td>{todo.completed ? "YES" : "NO"}</td>
+                {isAdmin && <td>{todo.createdBy}</td>}
                 <td>
-                  {isAdmin && (
-                    <button
-                      className="btn btn-info mx-2"
-                      onClick={() => updateTodo(todo.id)}
-                    >
-                      Update
-                    </button>
-                  )}
-                  {isAdmin && (
-                    <button
-                      className="btn btn-danger mx-2"
-                      onClick={() => deleteTodoId(todo.id)}
-                    >
-                      Delete
-                    </button>
-                  )}
+                  <button
+                    className="btn btn-info mx-2"
+                    onClick={() => updateTodo(todo.id)}
+                  >
+                    Update
+                  </button>
+
+                  <button
+                    className="btn btn-danger mx-2"
+                    onClick={() => deleteTodoId(todo.id)}
+                  >
+                    Delete
+                  </button>
 
                   <button
                     className="btn btn-success mx-2"
