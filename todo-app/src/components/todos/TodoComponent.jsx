@@ -1,70 +1,63 @@
 import React, { useEffect, useState } from "react";
-import { getTodo, saveTodo, todoUpdate } from "../services/TodoServices";
+import { getTodo, saveTodo, todoUpdate } from "../../services/TodoServices";
 import { useNavigate, useParams } from "react-router-dom";
 import Swal from "sweetalert2";
 
 const TodoComponent = () => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [completed, setCompleted] = useState("");
+  const [completed, setCompleted] = useState("false"); // default string "false"
   const navigate = useNavigate();
   const { id } = useParams();
 
-  function saveOrUpdateTodo(e) {
+  const saveOrUpdateTodo = async (e) => {
     e.preventDefault();
 
-    const todo = { title, description, completed };
+    const todo = {
+      title,
+      description,
+      completed: completed === "true", // pastikan boolean
+    };
 
-    if (id) {
-      todoUpdate(id, todo)
-        .then(() => {
-          Swal.fire("Berhasil!", "Todo berhasil diedit.", "success");
-          navigate("/todos");
-        })
-        .catch((error) => {
-          console.error(error);
-          const errorMessage =
-            error.response?.data?.message ||
-            "Terjadi kesalahan saat edit data.";
-          Swal.fire("Gagal!", errorMessage, "error");
-        });
-    } else {
-      saveTodo(todo)
-        .then(() => {
-          Swal.fire("Berhasil!", "Todo berhasil ditambahkan.", "success");
-          navigate("/todos");
-        })
-        .catch((error) => {
-          console.error(error);
-          const errorMessage =
-            error.response?.data?.message ||
-            "Terjadi kesalahan saat menambahkan data.";
-          Swal.fire("Gagal!", errorMessage, "error");
-        });
+    try {
+      if (id) {
+        await todoUpdate(id, todo);
+        Swal.fire("Berhasil!", "Todo berhasil diedit.", "success");
+      } else {
+        await saveTodo(todo);
+        Swal.fire("Berhasil!", "Todo berhasil ditambahkan.", "success");
+      }
+      navigate("/todos");
+    } catch (error) {
+      console.error(error);
+      const errorMessage =
+        error.response?.data?.message ||
+        (id
+          ? "Terjadi kesalahan saat edit data."
+          : "Terjadi kesalahan saat menambahkan data.");
+      Swal.fire("Gagal!", errorMessage, "error");
     }
-  }
+  };
 
-  function pageTitle() {
-    if (id) {
-      return <h2 className="text-center">Update Todo</h2>;
-    } else {
-      return <h2 className="text-center">Add Todo</h2>;
-    }
-  }
+  const pageTitle = () => (
+    <h2 className="text-center">{id ? "Update Todo" : "Add Todo"}</h2>
+  );
 
   useEffect(() => {
-    if (id) {
-      getTodo(id)
-        .then((response) => {
-          // console.log(response.data);
+    const fetchTodo = async () => {
+      try {
+        if (id) {
+          const response = await getTodo(id);
           setTitle(response.data.title);
           setDescription(response.data.description);
-          setCompleted(response.data.completed);
-        })
-        .catch((error) => {
-          console.log(error);
-        });
-    }
+          setCompleted(String(response.data.completed)); // convert ke string untuk <select>
+        }
+      } catch (error) {
+        console.error(error);
+        Swal.fire("Gagal!", "Tidak bisa mengambil data todo.", "error");
+      }
+    };
+    fetchTodo();
   }, [id]);
 
   return (
@@ -73,7 +66,7 @@ const TodoComponent = () => {
         <div className="card col-md-6 offset-md-3 offset-md-3">
           {pageTitle()}
           <div className="card-body">
-            <form>
+            <form onSubmit={saveOrUpdateTodo}>
               <div className="form-group mb-2">
                 <label className="form-label">Todo Title :</label>
                 <input
@@ -83,6 +76,7 @@ const TodoComponent = () => {
                   value={title}
                   className="form-control"
                   onChange={(e) => setTitle(e.target.value)}
+                  required
                 />
               </div>
 
@@ -95,6 +89,7 @@ const TodoComponent = () => {
                   value={description}
                   className="form-control"
                   onChange={(e) => setDescription(e.target.value)}
+                  required
                 />
               </div>
 
@@ -104,16 +99,14 @@ const TodoComponent = () => {
                   className="form-control"
                   value={completed}
                   onChange={(e) => setCompleted(e.target.value)}
+                  required
                 >
                   <option value="false">No</option>
                   <option value="true">Yes</option>
                 </select>
               </div>
 
-              <button
-                className="btn btn-success"
-                onClick={(e) => saveOrUpdateTodo(e)}
-              >
+              <button type="submit" className="btn btn-success">
                 Submit
               </button>
             </form>

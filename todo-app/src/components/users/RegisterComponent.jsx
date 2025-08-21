@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { registerAPICall } from "../services/AuthService";
+import { registerAPICall } from "../../services/AuthService";
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
 

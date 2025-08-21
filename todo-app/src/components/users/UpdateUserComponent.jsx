@@ -1,16 +1,16 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import {
   getCurrentUser,
   getUserById,
   updateUser,
-} from "../services/AuthService";
+} from "../../services/AuthService";
 import Swal from "sweetalert2";
 
 const UpdateUserComponent = () => {
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-
   const currentUser = getCurrentUser();
+
   const [user, setUser] = useState({
     name: "",
     username: "",
@@ -18,57 +18,94 @@ const UpdateUserComponent = () => {
     birthDate: "",
     jobTitle: "",
     location: "",
-    profilePhoto: "", // string path photo lama
+    profilePhoto: "",
   });
-  const [photoFile, setPhotoFile] = useState(null); // simpan file baru
 
+  const [photoFile, setPhotoFile] = useState(null);
+  const [errors, setErrors] = useState({}); // simpan pesan error
+
+  const location = useLocation();
   const navigate = useNavigate();
   const { id } = useParams();
+  const from = location.state?.from;
 
   useEffect(() => {
-    getUserById(id)
-      .then((response) => {
+    const fetchUser = async () => {
+      try {
+        const response = await getUserById(id);
         setUser(response.data);
-      })
-      .catch((error) => {
-        console.log(error);
+      } catch (error) {
+        console.error(error);
         Swal.fire("Error!", "Gagal mengambil data user.", "error");
-      });
+      }
+    };
+    fetchUser();
   }, [id]);
 
   const handleChange = (e) => {
     const { name, value, files } = e.target;
 
     if (name === "profilePhoto") {
-      setPhotoFile(files[0]); // simpan file upload
+      setPhotoFile(files[0]);
     } else {
       setUser((prevUser) => ({ ...prevUser, [name]: value }));
+      setErrors((prevErrors) => ({ ...prevErrors, [name]: "" })); // reset error ketika diisi
     }
   };
 
-  const editUserProfile = (e) => {
+  const validateForm = () => {
+    let formErrors = {};
+    let requiredFields = [
+      "name",
+      "username",
+      "email",
+      "birthDate",
+      "jobTitle",
+      "location",
+    ];
+
+    requiredFields.forEach((field) => {
+      if (!user[field] || user[field].trim() === "") {
+        formErrors[field] = `${field} tidak boleh kosong`;
+      }
+    });
+
+    return formErrors;
+  };
+
+  const editUserProfile = async (e) => {
     e.preventDefault();
 
-    updateUser(id, user, photoFile)
-      .then(() => {
-        Swal.fire("Berhasil!", "User berhasil diperbarui.", "success");
-        // redirect ke halaman detail profile pakai username yang baru diupdate
+    const formErrors = validateForm();
+    if (Object.keys(formErrors).length > 0) {
+      setErrors(formErrors);
+      Swal.fire("Error!", "Silakan isi semua field yang wajib.", "error");
+      return;
+    }
+
+    try {
+      await updateUser(id, user, photoFile);
+      Swal.fire("Berhasil!", "User berhasil diperbarui.", "success");
+
+      if (from === "users") {
+        navigate("/users");
+      } else {
         navigate(`/detail-profile/${currentUser}`);
-      })
-      .catch((error) => {
-        console.error(error);
+      }
+    } catch (error) {
+      console.error(error);
 
-        let errorMessage = "Gagal memperbarui user.";
-        if (error.response) {
-          if (error.response.data?.message) {
-            errorMessage = error.response.data.message;
-          } else if (typeof error.response.data === "string") {
-            errorMessage = error.response.data;
-          }
+      let errorMessage = "Gagal memperbarui user.";
+      if (error.response) {
+        if (error.response.data?.message) {
+          errorMessage = error.response.data.message;
+        } else if (typeof error.response.data === "string") {
+          errorMessage = error.response.data;
         }
+      }
 
-        Swal.fire("Error!", errorMessage, "error");
-      });
+      Swal.fire("Error!", errorMessage, "error");
+    }
   };
 
   return (
@@ -85,9 +122,12 @@ const UpdateUserComponent = () => {
                   type="text"
                   name="name"
                   value={user.name}
-                  className="form-control"
+                  className={`form-control ${errors.name ? "is-invalid" : ""}`}
                   onChange={handleChange}
                 />
+                {errors.name && (
+                  <small className="text-danger">{errors.name}</small>
+                )}
               </div>
 
               {/* Username */}
@@ -97,9 +137,14 @@ const UpdateUserComponent = () => {
                   type="text"
                   name="username"
                   value={user.username}
-                  className="form-control"
+                  className={`form-control ${
+                    errors.username ? "is-invalid" : ""
+                  }`}
                   onChange={handleChange}
                 />
+                {errors.username && (
+                  <small className="text-danger">{errors.username}</small>
+                )}
               </div>
 
               {/* Email */}
@@ -109,9 +154,12 @@ const UpdateUserComponent = () => {
                   type="email"
                   name="email"
                   value={user.email}
-                  className="form-control"
+                  className={`form-control ${errors.email ? "is-invalid" : ""}`}
                   onChange={handleChange}
                 />
+                {errors.email && (
+                  <small className="text-danger">{errors.email}</small>
+                )}
               </div>
 
               {/* Birth Date */}
@@ -121,9 +169,14 @@ const UpdateUserComponent = () => {
                   type="date"
                   name="birthDate"
                   value={user.birthDate}
-                  className="form-control"
+                  className={`form-control ${
+                    errors.birthDate ? "is-invalid" : ""
+                  }`}
                   onChange={handleChange}
                 />
+                {errors.birthDate && (
+                  <small className="text-danger">{errors.birthDate}</small>
+                )}
               </div>
 
               {/* Job Title */}
@@ -133,9 +186,14 @@ const UpdateUserComponent = () => {
                   type="text"
                   name="jobTitle"
                   value={user.jobTitle}
-                  className="form-control"
+                  className={`form-control ${
+                    errors.jobTitle ? "is-invalid" : ""
+                  }`}
                   onChange={handleChange}
                 />
+                {errors.jobTitle && (
+                  <small className="text-danger">{errors.jobTitle}</small>
+                )}
               </div>
 
               {/* Location */}
@@ -145,9 +203,14 @@ const UpdateUserComponent = () => {
                   type="text"
                   name="location"
                   value={user.location}
-                  className="form-control"
+                  className={`form-control ${
+                    errors.location ? "is-invalid" : ""
+                  }`}
                   onChange={handleChange}
                 />
+                {errors.location && (
+                  <small className="text-danger">{errors.location}</small>
+                )}
               </div>
 
               {/* Photo */}

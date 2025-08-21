@@ -40,6 +40,13 @@ export const registerAPICall = (registerObj) =>
 export const loginAPICall = (usernameOrEmail, password) =>
   axios.post(AUTH_REST_API_BASE_URL + "/login", { usernameOrEmail, password });
 
+// change password
+export const changePassword = (username, passwordData) =>
+  axios.put(
+    `${AUTH_REST_API_BASE_URL}/update-password/username/${username}`,
+    passwordData
+  );
+
 // Simpan token di localStorage
 export const storeToken = (token) => localStorage.setItem("token", token);
 export const getToken = () => localStorage.getItem("token");

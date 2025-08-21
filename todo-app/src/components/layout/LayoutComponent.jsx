@@ -3,7 +3,7 @@ import { Outlet, useNavigate } from "react-router-dom";
 import SideBarComponent from "./SideBarComponent";
 import HeaderComponent from "./HeaderComponent";
 import FooterComponent from "./FooterComponent";
-import { logout } from "../services/AuthService";
+import { logout } from "../../services/AuthService";
 
 const LayoutComponent = () => {
   const navigate = useNavigate();
@@ -17,7 +17,7 @@ const LayoutComponent = () => {
   }, []);
 
   function handleLogout() {
-    logout;
+    logout();
     navigate("/login");
   }
 

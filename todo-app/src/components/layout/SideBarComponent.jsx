@@ -1,6 +1,10 @@
 import React from "react";
 import { NavLink } from "react-router-dom";
-import { isUserLoggedIn, isAdminUser, logout } from "../services/AuthService";
+import {
+  isUserLoggedIn,
+  isAdminUser,
+  logout,
+} from "../../services/AuthService";
 
 const SideBarComponent = ({ isCollapsed, toggleCollapse, onLogout }) => {
   const isAuth = isUserLoggedIn();

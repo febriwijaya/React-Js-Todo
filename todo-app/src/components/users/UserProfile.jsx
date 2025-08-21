@@ -1,31 +1,42 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { getUserByUsername } from "../services/AuthService";
+import { getUserByUsername } from "../../services/AuthService";
 import { AiOutlineUser } from "react-icons/ai";
 import { FiMail, FiMapPin, FiCalendar } from "react-icons/fi";
-// import "./style.css"; // pastikan file ini ada
+import Swal from "sweetalert2";
 
 const UserProfile = () => {
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
   const { username } = useParams();
-
   const navigate = useNavigate();
 
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
 
   useEffect(() => {
-    getUserByUsername(username)
-      .then((res) => {
+    const fetchUser = async () => {
+      try {
+        const res = await getUserByUsername(username);
         setUser(res.data);
-        setLoading(false);
-      })
-      .catch((err) => {
+      } catch (err) {
         console.error(err);
-        setError("Failed to load user profile");
+
+        let errorMessage = "Failed to load user profile";
+        if (err.response) {
+          if (err.response.data?.message) {
+            errorMessage = err.response.data.message;
+          } else if (typeof err.response.data === "string") {
+            errorMessage = err.response.data;
+          }
+        }
+
+        Swal.fire("Error", errorMessage, "error");
+      } finally {
         setLoading(false);
-      });
+      }
+    };
+
+    fetchUser();
   }, [username]);
 
   const formatDate = (dateString) => {
@@ -37,19 +48,22 @@ const UserProfile = () => {
     });
   };
 
-  function editProfile(id) {
-    navigate(`/edit-profile/${id}`);
-  }
+  const editProfile = (id) => {
+    navigate(`/edit-profile/${id}`, { state: { from: "profile" } });
+  };
+
+  const changePassword = () => {
+    navigate("/change-password");
+  };
 
   if (loading) return <p className="text-center">Loading...</p>;
-  if (error) return <p className="text-center text-red-500">{error}</p>;
 
   return (
     <div className="profile-card">
-      {/* Cover tipis agar berasa LinkedIn */}
+      {/* Cover tipis ala LinkedIn */}
       <div className="profile-cover" />
 
-      {/* Avatar overlap & motong bagian atas card */}
+      {/* Avatar */}
       <div className="profile-avatar-wrap">
         {user?.profilePhoto ? (
           <img
