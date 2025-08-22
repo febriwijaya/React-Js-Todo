@@ -61,59 +61,69 @@ const LoginComponent = () => {
         icon: "error",
         confirmButtonText: "Coba Lagi",
       });
+
+      // Kosongkan inputan jika gagal
+      setUsername("");
+      setPassword("");
     }
   };
 
   return (
-    <div className="container">
-      <br />
-      <div className="row">
-        <div className="col-md-6 offset-md-3">
-          <div className="card shadow-sm">
-            <div className="card-header bg-primary text-white">
-              <h2 className="text-center">Login Form</h2>
+    <div className="d-flex justify-content-center align-items-center vh-100 bg-light">
+      <div
+        className="card shadow-lg"
+        style={{ width: "400px", borderRadius: "12px" }}
+      >
+        {/* Gambar header */}
+        <img
+          src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e"
+          alt="Header"
+          className="card-img-top"
+          style={{
+            height: "180px",
+            objectFit: "cover",
+            borderTopLeftRadius: "12px",
+            borderTopRightRadius: "12px",
+          }}
+        />
+
+        <div className="card-body">
+          <h3 className="text-center mb-4">Sign In</h3>
+
+          <form onSubmit={handleLoginForm}>
+            <div className="mb-3">
+              <input
+                type="text"
+                className="form-control"
+                placeholder="Username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+              />
             </div>
 
-            <div className="card-body">
-              <form onSubmit={handleLoginForm}>
-                <div className="row mb-3">
-                  <label className="col-md-3 col-form-label">
-                    Username / Email
-                  </label>
-                  <div className="col-md-9">
-                    <input
-                      type="text"
-                      name="username"
-                      className="form-control"
-                      placeholder="Enter username or email"
-                      value={username}
-                      onChange={(e) => setUsername(e.target.value)}
-                    />
-                  </div>
-                </div>
-
-                <div className="row mb-3">
-                  <label className="col-md-3 col-form-label">Password</label>
-                  <div className="col-md-9">
-                    <input
-                      type="password"
-                      name="password"
-                      className="form-control"
-                      placeholder="Enter password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                    />
-                  </div>
-                </div>
-
-                <div className="d-grid">
-                  <button type="submit" className="btn btn-success">
-                    Login
-                  </button>
-                </div>
-              </form>
+            <div className="mb-3">
+              <input
+                type="password"
+                className="form-control"
+                placeholder="Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
             </div>
-          </div>
+
+            <div className="d-grid mb-3">
+              <button type="submit" className="btn btn-success">
+                Sign In
+              </button>
+            </div>
+
+            <div className="text-center mt-3">
+              <span>Not a member? </span>
+              <a href="/register" className="text-success text-decoration-none">
+                Sign Up
+              </a>
+            </div>
+          </form>
         </div>
       </div>
     </div>

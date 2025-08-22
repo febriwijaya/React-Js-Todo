@@ -32,9 +32,27 @@ export const updateUser = (id, user, photoFile) => {
   });
 };
 
-// Register API
-export const registerAPICall = (registerObj) =>
-  axios.post(AUTH_REST_API_BASE_URL + "/register", registerObj);
+// Register API (POST dengan form-data)
+export const registerAPICall = (userObj, photoFile) => {
+  const formData = new FormData();
+
+  // masukkan object user ke dalam key "data" (sebagai JSON string)
+  formData.append(
+    "data",
+    new Blob([JSON.stringify(userObj)], { type: "application/json" })
+  );
+
+  // tambahkan photo jika ada
+  if (photoFile) {
+    formData.append("photo", photoFile);
+  }
+
+  return axios.post(`${AUTH_REST_API_BASE_URL}/register`, formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+};
 
 // Login API
 export const loginAPICall = (usernameOrEmail, password) =>
@@ -46,6 +64,9 @@ export const changePassword = (username, passwordData) =>
     `${AUTH_REST_API_BASE_URL}/update-password/username/${username}`,
     passwordData
   );
+
+export const deleteUsersById = (id) =>
+  axios.delete(AUTH_REST_API_BASE_URL + "/delete/" + id);
 
 // Simpan token di localStorage
 export const storeToken = (token) => localStorage.setItem("token", token);

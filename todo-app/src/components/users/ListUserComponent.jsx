@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { getAllRegister } from "../../services/AuthService";
+import { deleteUsersById, getAllRegister } from "../../services/AuthService";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 
@@ -54,7 +54,7 @@ const ListUserComponent = () => {
 
     if (result.isConfirmed) {
       try {
-        // await deleteRegister(id); // aktifkan kalau service sudah ada
+        await deleteUsersById(id); // aktifkan kalau service sudah ada
         Swal.fire("Berhasil!", "User berhasil dihapus.", "success");
         listUsersComponent(); // refresh list
       } catch (error) {

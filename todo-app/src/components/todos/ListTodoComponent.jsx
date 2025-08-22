@@ -83,11 +83,10 @@ const ListTodoComponent = () => {
   return (
     <div className="container">
       <h2 className="text-center">List of Todos</h2>
-      {isAdmin && (
-        <button className="btn btn-primary mb-2" onClick={addNewTodo}>
-          Add Todo
-        </button>
-      )}
+
+      <button className="btn btn-primary mb-2" onClick={addNewTodo}>
+        Add Todo
+      </button>
 
       <div>
         <table className="table table-bordered table-striped">
