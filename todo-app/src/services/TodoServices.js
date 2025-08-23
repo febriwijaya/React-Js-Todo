@@ -20,7 +20,12 @@ axios.interceptors.request.use(
   }
 );
 
-export const getAllTodos = () => axios.get(BASE_REST_API_URL);
+// export const getAllTodos = () => axios.get(BASE_REST_API_URL);
+
+export const getAllTodos = (page = 0, size = 10) =>
+  axios.get(BASE_REST_API_URL, {
+    params: { page, size },
+  });
 
 export const saveTodo = (todo) => axios.post(BASE_REST_API_URL, todo);
 

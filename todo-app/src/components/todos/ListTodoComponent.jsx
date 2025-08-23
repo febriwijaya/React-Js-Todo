@@ -13,16 +13,20 @@ const ListTodoComponent = () => {
   const [todos, setTodos] = useState([]);
   const navigate = useNavigate();
   const isAdmin = isAdminUser();
+  const [page, setPage] = useState(0);
+  const [size] = useState(10); // default 10 per halaman
+  const [totalPages, setTotalPages] = useState(0);
 
   useEffect(() => {
-    listTodos();
-  }, []);
+    listTodos(page);
+  }, [page]);
 
   // 🔹 Ambil semua todos
-  const listTodos = async () => {
+  const listTodos = async (pageNum) => {
     try {
-      const response = await getAllTodos();
-      setTodos(response.data);
+      const response = await getAllTodos(pageNum, size);
+      setTodos(response.data.data);
+      setTotalPages(response.data.total_pages);
     } catch (error) {
       console.error("Error fetching todos:", error);
       Swal.fire("Error", "Gagal mengambil data todos!", "error");
@@ -147,6 +151,55 @@ const ListTodoComponent = () => {
           </tbody>
         </table>
       </div>
+
+      {/* 🔹 Pagination Control */}
+      <nav aria-label="User pagination" className="mt-3">
+        <ul className="pagination justify-content-center">
+          {/* First Page */}
+          <li className={`page-item ${page === 0 ? "disabled" : ""}`}>
+            <button className="page-link" onClick={() => setPage(0)}>
+              « First
+            </button>
+          </li>
+
+          {/* Previous */}
+          <li className={`page-item ${page === 0 ? "disabled" : ""}`}>
+            <button className="page-link" onClick={() => setPage(page - 1)}>
+              ‹ Prev
+            </button>
+          </li>
+
+          {/* Numbered Pages */}
+          {Array.from({ length: totalPages }, (_, i) => (
+            <li key={i} className={`page-item ${page === i ? "active" : ""}`}>
+              <button className="page-link" onClick={() => setPage(i)}>
+                {i + 1}
+              </button>
+            </li>
+          ))}
+
+          {/* Next */}
+          <li
+            className={`page-item ${page + 1 >= totalPages ? "disabled" : ""}`}
+          >
+            <button className="page-link" onClick={() => setPage(page + 1)}>
+              Next ›
+            </button>
+          </li>
+
+          {/* Last Page */}
+          <li
+            className={`page-item ${page + 1 >= totalPages ? "disabled" : ""}`}
+          >
+            <button
+              className="page-link"
+              onClick={() => setPage(totalPages - 1)}
+            >
+              Last »
+            </button>
+          </li>
+        </ul>
+      </nav>
     </div>
   );
 };
