@@ -81,7 +81,7 @@ const RegisterComponent = () => {
     `form-control ${errors[field] ? "is-invalid" : ""}`;
 
   return (
-    <div className="container">
+    <div className="justify-content-center align-items-center bg-light vh-100">
       <br />
       <div className="row">
         <div className="col-md-6 offset-md-3">
@@ -226,6 +226,16 @@ const RegisterComponent = () => {
                   <button type="submit" className="btn btn-primary w-100">
                     Submit
                   </button>
+                </div>
+
+                <div className="text-center mt-3">
+                  <span>Do you already have an account? Please </span>
+                  <a
+                    href="/login"
+                    className="text-success text-decoration-none"
+                  >
+                    Log in
+                  </a>
                 </div>
               </form>
             </div>
